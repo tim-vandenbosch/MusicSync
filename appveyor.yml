@@ -1,6 +1,7 @@
 version: 1.0.{build}
 before_build:
 - ps: dotnet restore
+- ps: Install-Package VideoLibrary
 build:
   project: MusicSync.sln
   verbosity: minimal
