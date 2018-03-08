@@ -1,0 +1,6 @@
+version: 1.0.{build}
+before_build:
+- ps: dotnet restore
+build:
+  project: MusicSync.sln
+  verbosity: minimal
