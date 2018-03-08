@@ -1,2 +1,2 @@
 language: csharp
-solution: MusicSync\MusicSync.sln
+solution: MusicSync/MusicSync.sln
