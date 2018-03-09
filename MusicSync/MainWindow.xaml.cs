@@ -33,6 +33,7 @@ namespace MusicSync
         public MainWindow()
         {
             InitializeComponent();
+            buttonSync.IsEnabled = false;
         }
 
         private void BrowseFolder(object sender, RoutedEventArgs e)
@@ -44,6 +45,10 @@ namespace MusicSync
 
         private void PasteClipboard(object sender, RoutedEventArgs e)
         {
+            buttonSync.IsEnabled = false;
+            labelYoutubeVid.Content = "";
+            labelYoutubeFullName.Content = "";
+            textBoxYoutubeUrl.Text = "";
             if (Clipboard.ContainsText())
             {
                 if (CheckValidUrl(Clipboard.GetText()))
@@ -120,7 +125,16 @@ namespace MusicSync
                 var vid = service.GetVideo(textBoxUrl.Text);
                 labelYoutubeVid.Content = vid.Title;
                 labelYoutubeFullName.Content = vid.FullName;
-                labelYoutubeUrl.Content = vid.Uri;
+                try
+                {
+                    textBoxYoutubeUrl.Text = vid.Uri;
+                    buttonSync.IsEnabled = true;
+                }
+                catch (Exception exception)
+                {
+                    textBoxYoutubeUrl.Text = "[ERROR] url couldn't be validated!";
+                    buttonSync.IsEnabled = false;
+                }
             }
         }
     }

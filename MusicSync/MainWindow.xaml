@@ -17,7 +17,7 @@
         <Label x:Name="labelYoutubeVid" Content="vid.title" HorizontalAlignment="Left" Margin="33,158,0,0" VerticalAlignment="Top" Width="474"/>
         <Button x:Name="button" Content="Validate video" HorizontalAlignment="Left" Margin="123,112,0,0" VerticalAlignment="Top" Width="99" Click="ValidateUrl"/>
         <Label x:Name="labelYoutubeFullName" Content="vid.fullname" HorizontalAlignment="Left" Margin="33,189,0,0" VerticalAlignment="Top" Width="474"/>
-        <Label x:Name="labelYoutubeUrl" Content="vid.url" HorizontalAlignment="Left" Margin="35,220,0,0" VerticalAlignment="Top" Width="472"/>
+        <TextBox x:Name="textBoxYoutubeUrl" HorizontalAlignment="Left" Height="23" Margin="33,220,0,0" TextWrapping="Wrap" Text="vid.url" VerticalAlignment="Top" Width="474"/>
 
     </Grid>
 </Window>
