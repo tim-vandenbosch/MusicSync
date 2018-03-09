@@ -15,8 +15,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using NReco.VideoConverter;
 using VideoLibrary;
 using Clipboard = System.Windows.Clipboard;
+using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace MusicSync
@@ -79,12 +81,47 @@ namespace MusicSync
 
         private void SyncFolderToPlaylist(object sender, RoutedEventArgs e)
         {
-            var url = textBoxUrl.Text;
-            var folder = textBoxFolder.Text;
+            System.Windows.MessageBox.Show("Starting up service.");
+            using (var service = Client.For(YouTube.Default))
+            {
+                System.Windows.MessageBox.Show("getting storage folder and playlist.");
+                var url = textBoxUrl.Text;
+                var folder = textBoxFolder.Text;
+                Directory.CreateDirectory(folder);
+                Directory.SetCurrentDirectory(folder);
+                System.Windows.MessageBox.Show($"Local folder = {Directory.GetCurrentDirectory()}.");
+                
 
-            var youtube = YouTube.Default;
-            var vid = youtube.GetVideo(url);
-            File.WriteAllBytes(folder, vid.GetBytes());
+                //var youtube = YouTube.Default;
+                System.Windows.MessageBox.Show("getting vid.");
+                //var vid = await youtube.GetVideoAsync(url);
+                try
+                {
+                    var vid = service.GetVideo(url);
+                    System.Windows.MessageBox.Show($"Found video = {vid.Title}.");
+                    System.Windows.MessageBox.Show("attempting to save the vid.");
+                    
+                    File.WriteAllBytes(Directory.GetCurrentDirectory() +"\\"+ vid.FullName, vid.GetBytes());
+                    System.Windows.MessageBox.Show("Video saved.");
+                    var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+                    ffMpeg.ConvertMedia(Directory.GetCurrentDirectory() + "\\" + vid.FullName, Directory.GetCurrentDirectory() + "\\" + "extracted_audio_" + vid.FullName, Format.ac3);
+                }
+                catch (UnauthorizedAccessException UAEx)
+                {
+                    System.Windows.MessageBox.Show("No acces to the folder.");
+                }
+            }
+        }
+
+        private void ValidateUrl(object sender, RoutedEventArgs e)
+        {
+            using (var service = Client.For(YouTube.Default))
+            {
+                var vid = service.GetVideo(textBoxUrl.Text);
+                labelYoutubeVid.Content = vid.Title;
+                labelYoutubeFullName.Content = vid.FullName;
+                labelYoutubeUrl.Content = vid.Uri;
+            }
         }
     }
 }
