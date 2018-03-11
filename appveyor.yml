@@ -4,6 +4,7 @@ platform: x64
 
 before_build:
 - ps: dotnet restore
+- ps: nuget restore
 
 build:
   project: MusicSync.sln
