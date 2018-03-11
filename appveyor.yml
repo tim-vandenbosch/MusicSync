@@ -4,9 +4,9 @@ configuration: Debug
 cache: 
   - packages -> **\packages.config
 
-before build:
+before_build:
   - nuget restore
-#  - package restore
+  - package restore
 
 build:
   project: MusicSync.sln
