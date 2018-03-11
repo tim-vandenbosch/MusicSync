@@ -6,8 +6,8 @@ build:
   verbosity: minimal
 
 artifacts:
-- path: bin/Debug/libvideo.dll
+- path: bin\Debug\libvideo.dll
   name: libvideo
 
-- path: bin/Debug/NReco.VideoConverter.dll
+- path: bin\Debug\NReco.VideoConverter.dll
   name: NReco.VideoConverter
