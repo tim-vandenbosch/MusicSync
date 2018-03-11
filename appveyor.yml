@@ -2,8 +2,8 @@ version: 1.0.{build}
 configuration: Debug
 
 cache: 
-  - packages -> ''\packages.config
-  
+  - packages -> **\packages.config
+
 build:
   project: MusicSync.sln
   verbosity: minimal
