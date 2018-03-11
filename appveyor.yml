@@ -6,9 +6,9 @@ build:
   project: MusicSync.sln
   verbosity: minimal
 
-  artifacts:
-  - path: bin/Debug/libvideo.dll
-    name: libvideo
+artifacts:
+- path: bin/Debug/libvideo.dll
+  name: libvideo
 
-  - path: bin/Debug/NReco.VideoConverter.dll
-    name: NReco.VideoConverter
+- path: bin/Debug/NReco.VideoConverter.dll
+  name: NReco.VideoConverter
