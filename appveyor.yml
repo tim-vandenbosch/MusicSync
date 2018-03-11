@@ -2,14 +2,13 @@ version: 1.0.{build}
 configuration: Release
 platform: x64
 
-before_build:
-- ps: dotnet restore
-- ps: nuget restore
-
 build:
   project: MusicSync.sln
   verbosity: minimal
 
-artifacts:
-- path: packages\VideoLibrary.1.3.5\*.nupkg
-  name: Release
+  artifacts:
+  - path: bin/Debug/libvideo.dll
+    name: libvideo
+
+  - path: bin/Debug/NReco.VideoConverter.dll
+    name: NReco.VideoConverter
