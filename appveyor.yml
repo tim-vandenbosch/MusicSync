@@ -10,17 +10,3 @@ before_build:
 build:
   project: MusicSync.sln
   verbosity: minimal
-
-#artifacts:
-#- path: bin\Debug\libvideo.dll
-#  name: libvideo
-#
-#- path: bin\Debug\NReco.VideoConverter.dll
-#  name: NReco.VideoConverter
-
-# enable patching of AssemblyInfo.* files
-#assembly_info:
-#  patch: true
-#  file: libvideo.*
-#  assembly_version: "1.3.4"
-
