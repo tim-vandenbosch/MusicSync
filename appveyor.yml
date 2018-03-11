@@ -4,6 +4,10 @@ configuration: Debug
 cache: 
   - packages -> **\packages.config
 
+before build:
+  - nuget restore
+  - package restore
+
 build:
   project: MusicSync.sln
   verbosity: minimal
