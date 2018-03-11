@@ -1,6 +1,5 @@
 version: 1.0.{build}
-configuration: Release
-platform: x64
+configuration: Debug
 
 build:
   project: MusicSync.sln
