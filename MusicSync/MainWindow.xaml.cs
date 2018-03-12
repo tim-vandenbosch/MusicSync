@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using NReco.VideoConverter;
 using VideoLibrary;
+using WrapYoutubeDl;
 
 namespace MusicSync
 {
@@ -15,11 +19,12 @@ namespace MusicSync
     {
         private System.Windows.Forms.FolderBrowserDialog _browseFolder;
         private string _folder;
+        private string _ytdl = "binary/youtube-dl.exe";
 
         public MainWindow()
         {
             InitializeComponent();
-            buttonSync.IsEnabled = false;
+            buttonSync.IsEnabled = true;
         }
 
         /// <summary>
@@ -42,19 +47,11 @@ namespace MusicSync
         private void PasteClipboard(object sender, RoutedEventArgs e)
         {
             buttonSync.IsEnabled = false;
-            labelYoutubeVid.Content = "";
-            labelYoutubeFullName.Content = "";
-            labelYoutubeUrl.Content = "";
             if (Clipboard.ContainsText())
             {
-                if (CheckValidUrl(Clipboard.GetText()))
-                {
-                    textBoxUrl.Text = Clipboard.GetText();
-                }
-                else
-                {
-                    MessageBox.Show("There was no valid url found on your clipboard.");
-                }
+                if (Clipboard.ContainsText()) textBoxUrl.Text = Clipboard.GetText();
+                CheckValidUrl(textBoxUrl.Text);
+                buttonSync.IsEnabled = true;
             }
             else
             {
@@ -63,7 +60,7 @@ namespace MusicSync
         }
 
         /// <summary>
-        /// Checking of the url is actually is an url.
+        /// Checking of the url is actually is an url and if it's from youtube.
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
@@ -73,17 +70,12 @@ namespace MusicSync
             {
                 var req = WebRequest.Create(url);
                 var res = req.GetResponse();
-                if (res.ResponseUri.Host == "Youtube")
+                res.Close();
+                using (var service = Client.For(YouTube.Default))
                 {
-                    res.Close();
-                    return true;
+                    var vid = service.GetVideo(textBoxUrl.Text);
                 }
-                else
-                {
-                    MessageBox.Show("The given link is not a youtube link.");
-                    res.Close();
-                    return false;
-                }
+                return true;
             }
             catch (WebException)
             {
@@ -102,69 +94,51 @@ namespace MusicSync
         /// <param name="e"></param>
         private void SyncFolderToPlaylist(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Starting up service.");
-            using (var service = Client.For(YouTube.Default))
-            {
-                Console.WriteLine("getting storage folder and playlist.");
-                var url = textBoxUrl.Text;
-                SetCurrentFolder();
-                Console.WriteLine($"Local folder = {Directory.GetCurrentDirectory()}.");
-                try
-                {
-                    Console.WriteLine("Getting video information.");
-                    var vid = service.GetVideo(url);
-                    Console.WriteLine($"Found video = {vid.Title}.");
-                    Console.WriteLine($"Video url: {vid.Uri}.");
-                    Console.WriteLine("Downloading video.");
-                    var stream = vid.GetBytes();
-                    Console.WriteLine("attempting to save the vid.");
-                    File.WriteAllBytes(Directory.GetCurrentDirectory() +"\\"+ vid.FullName, stream);
-                    Console.WriteLine("Video saved.");
-                    Console.WriteLine("Starting up ffmpeg on \"below normal\" priority.");
-                    // Making sure ffmpeg doesn't suck your computer dry
-                    var ffMpeg = new FFMpegConverter {FFMpegProcessPriority = ProcessPriorityClass.BelowNormal};
-                    Console.WriteLine("ffmpeg Created and converting media.");
-                    ffMpeg.ConvertMedia(Directory.GetCurrentDirectory() + "\\" + vid.FullName, Directory.GetCurrentDirectory() + "\\" + "extracted_audio_" + vid.Title + ".mp3", AudioFormat.Mp3.ToString());
-                    Console.WriteLine("Media converted.");
+            // Where to download to
+            SetCurrentFolder();
 
-                    Console.WriteLine("Deleting video.");
-                    File.Delete(Directory.GetCurrentDirectory() + "\\" + vid.FullName);
-
-                    MessageBox.Show($"Download and convertion complete for vid: {vid.Title}.");
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    MessageBox.Show($"No acces to the folder: {_folder}.");
-                }
-            }
+            // Where the video comes from
+            var url = textBoxUrl.Text;
+            if (!CheckValidUrl(url)) return;
+            var arguments = "";
+            DownloadOneVideoAndConvertIt(url);
         }
 
-        /// <summary>
-        /// Validating visualy for the user if the youtube vid is able to be downloaded.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ValidateUrl(object sender, RoutedEventArgs e)
+        private void DownloadOneVideoAndConvertIt(string url)
         {
+            // Getting info from video
+            Console.WriteLine("Starting up service.");
+            string title;
             using (var service = Client.For(YouTube.Default))
             {
-                var vid = service.GetVideo(textBoxUrl.Text);
-                labelYoutubeVid.Content = vid.Title;
-                labelYoutubeFullName.Content = vid.FullName;
-                try
-                {
-                    // textBoxYoutubeUrl.Text = vid.Uri;
-                    labelYoutubeUrl.Content = "url validated!";
-                    buttonSync.IsEnabled = true;
-                }
-                catch (Exception)
-                {
-                    labelYoutubeUrl.Content = "[ERROR] url couldn't be validated!";
-                    buttonSync.IsEnabled = false;
-                }
+                // getting info
+                Console.WriteLine("Getting video information.");
+                var vid = service.GetVideo(url);
+                Console.WriteLine($"Found video = {vid.Title}.");
+                title = vid.Title.Replace('#', ' ').Replace('|', ' ');
+                // Console.WriteLine($"Video url: {vid.Uri}.");
             }
-        }
 
+            // initiating download
+            var wantedVideoFile = $"{title}.webm";
+            var folder = _folder.Replace("\\", "/");
+            var arguments = string.Format($"--continue --no-playlist --no-overwrites --restrict-filenames --extract-audio --audio-format mp3 {url} -o \"{folder}/{wantedVideoFile}\"");  //--ignore-errors
+            YoutubeInteraction(arguments);
+
+            // initiating convert to mp3
+            var wantedAudioFile = $"{title}.mp3";
+            Console.WriteLine("Starting up ffmpeg on \"below normal\" priority."); // Making sure ffmpeg doesn't suck your computer dry
+            var ffMpeg = new FFMpegConverter { FFMpegProcessPriority = ProcessPriorityClass.BelowNormal };
+            Console.WriteLine("ffmpeg Created and converting media.");
+            ffMpeg.ConvertMedia(_folder + "\\" + wantedVideoFile,
+                                _folder + "\\" + wantedAudioFile,
+                                AudioFormat.Mp3.ToString());
+            Console.WriteLine("Media converted.");
+
+            // deleting vids
+            Console.WriteLine("Deleting video.");
+            File.Delete(_folder + "\\" + wantedVideoFile);
+        }
 
         /// <summary>
         /// Opening the selected folder for syncing, in file explorer.
@@ -184,8 +158,40 @@ namespace MusicSync
         {
             _folder = textBoxFolder.Text;
             Directory.CreateDirectory(_folder);
-            Directory.SetCurrentDirectory(_folder);
-            Console.WriteLine($"Opening local folder = {Directory.GetCurrentDirectory()}.");
+            Console.WriteLine($"Setting local folder = {_folder}.");
+        }
+
+        /// <summary>
+        /// The downloader of youtube files
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="folder"></param>
+        /// <param name="file"></param>
+        private void YoutubeInteraction(string arguments)
+        {
+            Console.WriteLine("Setting up downloader.");
+
+            // Method 2
+            var process = new Process();
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            Console.WriteLine($"{Directory.GetCurrentDirectory()}\\{_ytdl}".Replace("\\", "/"));
+            process.StartInfo.FileName = $"{Directory.GetCurrentDirectory()}\\{_ytdl}".Replace("\\", "/");
+            process.StartInfo.Arguments = arguments;
+            process.StartInfo.CreateNoWindow = true;
+            process.EnableRaisingEvents = true;
+
+            Console.WriteLine("Starting download");
+            process.Start();
+
+            while (process.HasExited == false)
+            {
+                Console.WriteLine(process.StandardOutput.ReadLine());
+                // Console.WriteLine("Waiting for download to complete.");
+                System.Threading.Thread.Sleep(1000);                   // wait while process exits;
+            }
+            Console.WriteLine("Download complete!");
         }
     }
 }

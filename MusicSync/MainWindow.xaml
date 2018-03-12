@@ -5,20 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicSync"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525" WindowStartupLocation="CenterScreen">
+        Title="MusicSync" Height="580" Width="525" WindowStartupLocation="CenterScreen">
     <Grid>
         <Button x:Name="buttonBrowse" Content="Browse" HorizontalAlignment="Left" Margin="352,31,0,0" VerticalAlignment="Top" Width="75" Click="BrowseFolder" Height="23"/>
         <Button x:Name="buttonPaste" Content="Paste" HorizontalAlignment="Left" Margin="432,65,0,0" VerticalAlignment="Top" Width="75" Height="23" Click="PasteClipboard"/>
         <TextBox x:Name="textBoxFolder" HorizontalAlignment="Left" Height="23" Margin="123,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="224" Text="D:\tmp\MusicSync"/>
         <TextBox x:Name="textBoxUrl" HorizontalAlignment="Left" Height="23" Margin="123,65,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="304" Text="https://www.youtube.com/watch?v=mOrXOlqkP1g"/>
-        <Button x:Name="buttonSync" Content="Sync" HorizontalAlignment="Left" Margin="263,112,0,0" VerticalAlignment="Top" Width="75" Click="SyncFolderToPlaylist"/>
+        <Button x:Name="buttonSync" Content="Download" HorizontalAlignment="Left" Margin="171,93,0,0" VerticalAlignment="Top" Width="176" Click="SyncFolderToPlaylist"/>
         <Label x:Name="labelFolder" Content="Folder :" HorizontalAlignment="Left" Margin="24,28,0,0" VerticalAlignment="Top"/>
         <Label x:Name="labelUrl" Content="Playlist url :" HorizontalAlignment="Left" Margin="24,65,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="labelYoutubeVid" Content="vid.title" HorizontalAlignment="Left" Margin="33,158,0,0" VerticalAlignment="Top" Width="474"/>
-        <Button x:Name="button" Content="Validate video" HorizontalAlignment="Left" Margin="123,112,0,0" VerticalAlignment="Top" Width="99" Click="ValidateUrl"/>
-        <Label x:Name="labelYoutubeFullName" Content="vid.fullname" HorizontalAlignment="Left" Margin="33,189,0,0" VerticalAlignment="Top" Width="474"/>
-        <Label x:Name="labelYoutubeUrl" Content="Validator" HorizontalAlignment="Left" Margin="33,215,0,0" VerticalAlignment="Top" Width="228"/>
         <Button x:Name="button1" Content="Open" HorizontalAlignment="Left" Margin="432,31,0,0" VerticalAlignment="Top" Width="75" Height="23" Click="OpenSelectedFolder"/>
-
+        <Grid HorizontalAlignment="Left" Height="421" Margin="10,118,0,0" VerticalAlignment="Top" Width="497">
+            <ItemsControl Name="itemsControlYoutubeList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Title}" />
+                            <ProgressBar Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Completion}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </Window>
