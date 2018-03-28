@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using MusicSync.objects;
 using NReco.VideoConverter;
 using VideoLibrary;
 using WrapYoutubeDl;
@@ -18,13 +20,18 @@ namespace MusicSync
     public partial class MainWindow : Window
     {
         private System.Windows.Forms.FolderBrowserDialog _browseFolder;
-        private string _folder;
+        private string _folder = "D:\\tmp\\MusicSync";
         private string _ytdl = "binary/youtube-dl.exe";
+        private Playlist _playList;
+        private List<Song> _songList;
 
         public MainWindow()
         {
             InitializeComponent();
             buttonSync.IsEnabled = true;
+            textBoxFolder.Text = _folder;
+            _playList = new Playlist();
+            _songList = new List<Song>();
         }
 
         /// <summary>
@@ -192,6 +199,13 @@ namespace MusicSync
                 System.Threading.Thread.Sleep(1000);                   // wait while process exits;
             }
             Console.WriteLine("Download complete!");
+        }
+
+        private void CreateXamlItem(Playlist __playlist)
+        {
+            var dataitem = DataGrid.DataContext as Playlist;
+            // dataitem.Title;
+            
         }
     }
 }
