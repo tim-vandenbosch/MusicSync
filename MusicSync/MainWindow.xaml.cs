@@ -8,9 +8,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using MusicSync.objects;
+using MusicSync.Properties;
 using NReco.VideoConverter;
 using VideoLibrary;
 using WrapYoutubeDl;
+using Video = MusicSync.objects.Video;
 
 namespace MusicSync
 {
@@ -20,7 +22,7 @@ namespace MusicSync
     public partial class MainWindow : Window
     {
         private System.Windows.Forms.FolderBrowserDialog _browseFolder;
-        private string _folder = "D:\\tmp\\MusicSync";
+        private string _folder = Settings.Default.WantedFolder;
         private string _ytdl = "binary/youtube-dl.exe";
         private Playlist _playList;
         private List<Song> _songList;
@@ -30,7 +32,6 @@ namespace MusicSync
             InitializeComponent();
             buttonSync.IsEnabled = true;
             textBoxFolder.Text = _folder;
-            _playList = new Playlist();
             _songList = new List<Song>();
         }
 
@@ -44,6 +45,8 @@ namespace MusicSync
             _browseFolder = new System.Windows.Forms.FolderBrowserDialog();
             _browseFolder.ShowDialog();
             textBoxFolder.Text = _browseFolder.SelectedPath;
+            Settings.Default.WantedFolder = _browseFolder.SelectedPath;
+            Settings.Default.Save();
         }
 
         /// <summary>
@@ -107,7 +110,6 @@ namespace MusicSync
             // Where the video comes from
             var url = textBoxUrl.Text;
             if (!CheckValidUrl(url)) return;
-            var arguments = "";
             DownloadOneVideoAndConvertIt(url);
         }
 
@@ -201,11 +203,47 @@ namespace MusicSync
             Console.WriteLine("Download complete!");
         }
 
+        /// <summary>
+        /// Display a found video on youtube with information
+        /// </summary>
+        /// <param name="__playlist"></param>
         private void CreateXamlItem(Playlist __playlist)
         {
-            var dataitem = DataGrid.DataContext as Playlist;
+            var dataitem = DataGrid.DataContext as objects.Video;
             // dataitem.Title;
             
+        }
+
+        /// <summary>
+        /// Checks if the url for youtube playlist
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private bool CheckPlaylistUrl(Uri url)
+        {
+            return url.Host == "youtube";
+        }
+
+        /// <summary>
+        /// Gets all the videos-data and sets them to objects
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private List<objects.Video> CreatePlaylist(Uri url)
+        {
+            List<Video> foundVideos = new List<Video>();
+            if (CheckPlaylistUrl(url))
+            {
+                //TODO: get songs from youtube
+                // foreach found song, add to foundVideo
+                return foundVideos;
+            }
+            else
+            {
+                // if just one song found, still add to playlist
+                // foundVideos.Add();
+                return foundVideos;
+            }
         }
     }
 }
