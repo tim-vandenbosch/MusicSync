@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using MusicSync.objects;
+using MusicSync.Properties;
 using NReco.VideoConverter;
 using VideoLibrary;
 using WrapYoutubeDl;
@@ -20,7 +21,7 @@ namespace MusicSync
     public partial class MainWindow : Window
     {
         private System.Windows.Forms.FolderBrowserDialog _browseFolder;
-        private string _folder = "D:\\tmp\\MusicSync";
+        private string _folder = Settings.Default.WantedFolder;
         private string _ytdl = "binary/youtube-dl.exe";
         private Playlist _playList;
         private List<Song> _songList;
@@ -30,7 +31,6 @@ namespace MusicSync
             InitializeComponent();
             buttonSync.IsEnabled = true;
             textBoxFolder.Text = _folder;
-            _playList = new Playlist();
             _songList = new List<Song>();
         }
 
@@ -44,6 +44,8 @@ namespace MusicSync
             _browseFolder = new System.Windows.Forms.FolderBrowserDialog();
             _browseFolder.ShowDialog();
             textBoxFolder.Text = _browseFolder.SelectedPath;
+            Settings.Default.WantedFolder = _browseFolder.SelectedPath;
+            Settings.Default.Save();
         }
 
         /// <summary>
