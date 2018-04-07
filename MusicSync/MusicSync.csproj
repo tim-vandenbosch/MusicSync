@@ -84,7 +84,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="objects\Playlist.cs" />
     <Compile Include="objects\Song.cs" />
     <Compile Include="objects\Video.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

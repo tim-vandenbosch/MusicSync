@@ -23,7 +23,7 @@ namespace MusicSync
         private System.Windows.Forms.FolderBrowserDialog _browseFolder;
         private string _folder = Settings.Default.WantedFolder;
         private string _ytdl = "binary/youtube-dl.exe";
-        private Playlist _playList;
+        private List<objects.Video> _playList;
         private List<Song> _songList;
 
         public MainWindow()
@@ -32,6 +32,7 @@ namespace MusicSync
             buttonSync.IsEnabled = true;
             textBoxFolder.Text = _folder;
             _songList = new List<Song>();
+            _playList = new List<objects.Video>();
         }
 
         /// <summary>
@@ -110,23 +111,16 @@ namespace MusicSync
             var url = textBoxUrl.Text;
             if (!CheckValidUrl(url)) return;
             var arguments = "";
-            DownloadOneVideoAndConvertIt(url);
+            //TODO: get info from youtube vid first
+            _playList.Add(new objects.Video("test", new Uri(url), 10));
+            CreateXamlItem(_playList);
+            // DownloadOneVideoAndConvertIt(url);
         }
 
         private void DownloadOneVideoAndConvertIt(string url)
         {
-            // Getting info from video
             Console.WriteLine("Starting up service.");
-            string title;
-            using (var service = Client.For(YouTube.Default))
-            {
-                // getting info
-                Console.WriteLine("Getting video information.");
-                var vid = service.GetVideo(url);
-                Console.WriteLine($"Found video = {vid.Title}.");
-                title = vid.Title.Replace('#', ' ').Replace('|', ' ');
-                // Console.WriteLine($"Video url: {vid.Uri}.");
-            }
+            string title = GetVideoTitle(url); // Getting info from video
 
             // initiating download
             var wantedVideoFile = $"{title}.webm";
@@ -147,6 +141,27 @@ namespace MusicSync
             // deleting vids
             Console.WriteLine("Deleting video.");
             File.Delete(_folder + "\\" + wantedVideoFile);
+        }
+
+        /// <summary>
+        /// Getting the video title information from youtube to use in naming files
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private static string GetVideoTitle(string url)
+        {
+            // I don't think it's usefull to make another var here
+            string title;
+            using (var service = Client.For(YouTube.Default))
+            {
+                // getting info
+                Console.WriteLine("Getting video information.");
+                var vid = service.GetVideo(url);
+                Console.WriteLine($"Found video = {vid.Title}.");
+                title = vid.Title.Replace('#', ' ').Replace('|', ' ');
+                // Console.WriteLine($"Video url: {vid.Uri}.");
+            }
+            return title;
         }
 
         /// <summary>
@@ -198,16 +213,18 @@ namespace MusicSync
             {
                 Console.WriteLine(process.StandardOutput.ReadLine());
                 // Console.WriteLine("Waiting for download to complete.");
-                System.Threading.Thread.Sleep(1000);                   // wait while process exits;
+                System.Threading.Thread.Sleep(1000); // wait while process exits;
             }
             Console.WriteLine("Download complete!");
         }
 
-        private void CreateXamlItem(Playlist __playlist)
+        /// <summary>
+        /// Make and fill in the download-list from youtube to the UI
+        /// </summary>
+        /// <param name="__playlist"></param>
+        private void CreateXamlItem(List<objects.Video> __playlist)
         {
-            var dataitem = DataGrid.DataContext as Playlist;
-            // dataitem.Title;
-            
+            itemsControlYoutubeList.ItemsSource = __playlist;
         }
     }
 }

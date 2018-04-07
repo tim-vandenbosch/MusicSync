@@ -16,15 +16,15 @@
         <Label x:Name="labelUrl" Content="Playlist url :" HorizontalAlignment="Left" Margin="24,65,0,0" VerticalAlignment="Top"/>
         <Button x:Name="button1" Content="Open" HorizontalAlignment="Left" Margin="432,31,0,0" VerticalAlignment="Top" Width="75" Height="23" Click="OpenSelectedFolder"/>
         <Grid Name="DataGrid" HorizontalAlignment="Left" Height="421" Margin="10,118,0,0" VerticalAlignment="Top" Width="497">
-            <ItemsControl Name="itemsControlYoutubeList">
+            <ItemsControl x:Name="itemsControlYoutubeList" >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="5,5,5,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Button  Name="playMusicButton">Play</Button>
                             <Image Name="youtubeTumbnailImage"></Image>
+                            <Label Name="youtubeVideoTitle" Content="{Binding Path=Title}"></Label>
                             <ProgressBar Name="downloadProgressBar"></ProgressBar>
                             <ProgressBar Name="convertProgressBar"></ProgressBar>
                         </Grid>
