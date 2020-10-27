@@ -1,7 +1,7 @@
 # MusicSync
 [![Build status](https://ci.appveyor.com/api/projects/status/47c5chmkuadn1n8w?svg=true)](https://ci.appveyor.com/project/tim-vandenbosch/musicsync)
 [![Master](https://img.shields.io/appveyor/ci/gruntjs/grunt/master.svg)](https://ci.appveyor.com/project/tim-vandenbosch/musicsync)
-[![Build-state](https://img.shields.io/badge/Development-true-yellow.svg)](https://github.com/tim-vandenbosch/MusicSync)
+[![Build-state](https://img.shields.io/badge/Development-paused-yellow.svg)](https://github.com/tim-vandenbosch/MusicSync)
 
 ## Description
 A folder that's in sync with a playlist on youtube.
